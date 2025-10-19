@@ -85,4 +85,23 @@ void gemm_bf16(const int M,
                const float beta,
                float *C,
                const int ldc);
+
+/**
+ * @brief BFloat16 GEMM wrapper (BF16 inputs and outputs)
+ * 
+ * This is a convenience wrapper around gemm_bf16 that handles BF16 output.
+ * Internally uses FP32 accumulation via gemm_bf16, then converts back to BF16.
+ */
+void gemm(const int M,
+          const int N,
+          const int K,
+          const bfloat16 alpha,
+          const bfloat16 *A,
+          const int lda,
+          const bfloat16 *B,
+          const int ldb,
+          const bfloat16 beta,
+          bfloat16 *C,
+          const int ldc);
+
 } // namespace cosma

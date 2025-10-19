@@ -9,6 +9,7 @@
 #include <cosma/local_multiply.hpp>
 #include <cosma/multiply.hpp>
 #include <cosma/mpi_mapper.hpp>
+#include <cosma/bfloat16.hpp>
 
 using namespace cosma;
 
@@ -31,6 +32,18 @@ void fill_matrix(std::complex<T>* ptr, size_t size) {
 
     for (unsigned i = 0; i < size; ++i) {
         ptr[i] = std::complex<T>{dist(rng), dist(rng)};
+    }
+}
+
+// Specialization for bfloat16 (std::uniform_real_distribution doesn't support custom types)
+template <>
+void fill_matrix<bfloat16>(bfloat16* ptr, size_t size) {
+    static std::random_device dev;                        // seed
+    static std::mt19937 rng(dev());                       // generator
+    static std::uniform_real_distribution<float> dist(10.0f); // distribution for float
+
+    for (unsigned i = 0; i < size; ++i) {
+        ptr[i] = bfloat16(dist(rng));
     }
 }
 
@@ -334,12 +347,15 @@ bool test_cosma(Strategy s,
         isOK = globCcheck.size() == globC.size();
         for (int i = 0; i < globC.size(); ++i) {
             // Use relative error for large values, absolute error for small values
-            double abs_error = std::abs(globC[i] - globCcheck[i]);
-            double scale = std::max(std::abs(globC[i]), std::abs(globCcheck[i]));
+            // Use ADL (argument-dependent lookup) to find correct abs() for each type
+            using std::abs;
+            double abs_error = abs(globC[i] - globCcheck[i]);
+            double scale = std::max(abs(globC[i]), abs(globCcheck[i]));
             double rel_error = (scale > 1e-10) ? abs_error / scale : abs_error;
-            // For float32, relative error tolerance should be ~1e-6
-            // For float64, relative error tolerance should be ~1e-12
-            double tolerance = (sizeof(Scalar) == 4) ? 1e-5 : epsilon;
+            // For bfloat16 (2 bytes, 7 mantissa bits), relative error tolerance should be ~1e-2
+            // For float32 (4 bytes), relative error tolerance should be ~1e-6
+            // For float64 (8 bytes), relative error tolerance should be ~1e-12
+            double tolerance = (sizeof(Scalar) == 2) ? 1e-2 : ((sizeof(Scalar) == 4) ? 1e-5 : epsilon);
             isOK = isOK && (rel_error < tolerance);
         }
 
@@ -355,11 +371,12 @@ bool test_cosma(Strategy s,
                         int y = i / m;
                         int locidx, rank;
                         std::tie(locidx, rank) = C.local_coordinates(x, y);
+                        using std::abs;  // ADL for correct abs() overload
                         std::cout << "global(" << x << ", " << y
                                   << ") = (loc = " << locidx << ", rank = " << rank
                                   << ") = " << globC.at(i) << " and should be "
                                   << globCcheck.at(i) << " (diff = " 
-                                  << std::abs(globC.at(i) - globCcheck.at(i)) << ")" << std::endl;
+                                  << abs(globC.at(i) - globCcheck.at(i)) << ")" << std::endl;
                     }
                 }
             }

@@ -3,7 +3,7 @@
 	url = https://github.com/eth-cscs/Tiled-MM.git
 [submodule "libs/COSTA"]
 	path = libs/COSTA
-	url = https://github.com/eth-cscs/COSTA
+	url = https://github.com/dbsanfte/COSTA
 [submodule "libs/cxxopts"]
 	path = libs/cxxopts
 	url = https://github.com/jarro2783/cxxopts

@@ -1,4 +1,5 @@
 #include <cosma/multiply.hpp>
+#include <cosma/bfloat16.hpp>
 
 #include <algorithm>
 #include <cctype>
@@ -20,7 +21,7 @@ using namespace cosma;
 template <typename T>
 void fill_int(T* ptr, size_t size) {
     for (unsigned i = 0u; i < size; ++i) {
-        ptr[i] = 10*drand48();
+        ptr[i] = T(static_cast<float>(10.0 * drand48()));
     }
 }
 
@@ -153,7 +154,7 @@ int main(int argc, char **argv) {
     );
     // check if the type option takes a correct value
     std::unordered_set<std::string> type_options = {
-        "float", "double", "zfloat", "zdouble"
+        "float", "double", "zfloat", "zdouble", "bfloat16"
     };
     if (type_options.find(type) == type_options.end()) {
         std::cout << "COSMA (cosma_miniapp.cpp): ERROR: --type option: can only take the following values: " << std::endl;
@@ -200,6 +201,10 @@ int main(int argc, char **argv) {
                 result_correct = 
                 run<std::complex<float>>(m, n, k, steps, 
                                          t_run, test_correctness, MPI_COMM_WORLD);
+            } else if (type == "bfloat16") {
+                result_correct = 
+                run<bfloat16>(m, n, k, steps, 
+                             t_run, test_correctness, MPI_COMM_WORLD);
             } else {
                 throw std::runtime_error("COSMA(cosma_miniapp): unknown data type of matrix entries.");
             }

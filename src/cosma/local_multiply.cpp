@@ -370,6 +370,16 @@ local_multiply_cpu<std::complex<float>>(
                                     std::complex<float> alpha,
                                     std::complex<float> beta);
 
+template void local_multiply_cpu<bfloat16>(
+                                    bfloat16 *matrixA,
+                                    bfloat16 *matrixB,
+                                    bfloat16 *matrixC,
+                                    int m,
+                                    int n,
+                                    int k,
+                                    bfloat16 alpha,
+                                    bfloat16 beta);
+
 // explicit template instantiation using context with unique_ptr context
 template void local_multiply<double>(context<double> &ctx,
                                      double *matrixA,

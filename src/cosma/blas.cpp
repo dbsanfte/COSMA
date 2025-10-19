@@ -191,5 +191,42 @@ void gemm_bf16(const int M,
 #endif
 }
 
+// BF16 wrapper (converts output back to BF16)
+void gemm(const int M,
+          const int N,
+          const int K,
+          const bfloat16 alpha,
+          const bfloat16 *A,
+          const int lda,
+          const bfloat16 *B,
+          const int ldb,
+          const bfloat16 beta,
+          bfloat16 *C,
+          const int ldc) {
+    // Allocate FP32 buffer for output
+    std::vector<float> C_fp32(M * N);
+    
+    // If beta != 0, convert existing C to FP32
+    float beta_fp32 = static_cast<float>(beta);
+    if (std::abs(beta_fp32) > 0.0f) {
+        for (int i = 0; i < M * N; ++i) {
+            C_fp32[i] = static_cast<float>(C[i]);
+        }
+    }
+    
+    // Call mixed-precision GEMM
+    gemm_bf16(M, N, K,
+              static_cast<float>(alpha),
+              A, lda,
+              B, ldb,
+              beta_fp32,
+              C_fp32.data(), ldc);
+    
+    // Convert output back to BF16
+    for (int i = 0; i < M * N; ++i) {
+        C[i] = bfloat16(C_fp32[i]);
+    }
+}
+
 } // namespace cosma
 #endif
