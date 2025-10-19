@@ -1,6 +1,6 @@
 #include <complex>
-#include <cosma/buffer.hpp>
 #include <cosma/bfloat16.hpp>
+#include <cosma/buffer.hpp>
 #include <cosma/context.hpp>
 #include <cosma/profiler.hpp>
 

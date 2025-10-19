@@ -46,11 +46,41 @@ add_test(NAME test.bfloat16_mpi
 add_dependencies(tests test.bfloat16_mpi)
 install(TARGETS test.bfloat16_mpi DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
+# BFloat16 debug test for custom strategy
+add_executable(debug.bf16_custom debug_bf16_custom_strategy.cpp)
+target_link_libraries(debug.bf16_custom PRIVATE cosma MPI::MPI_CXX)
+add_dependencies(tests debug.bf16_custom)
+
+# BFloat16 MPI byte order test
+add_executable(test.bf16_bytes test_bf16_mpi_byte_order.cpp)
+target_link_libraries(test.bf16_bytes PRIVATE cosma MPI::MPI_CXX)
+add_dependencies(tests test.bf16_bytes)
+
+# Buffer size debug test
+add_executable(debug.buffer_sizes debug_buffer_sizes.cpp)
+target_link_libraries(debug.buffer_sizes PRIVATE cosma MPI::MPI_CXX)
+add_dependencies(tests debug.buffer_sizes)
+
+# Minimal reproducer for BF16 custom strategy bug
+add_executable(minimal_bf16_bug minimal_bf16_custom_bug.cpp)
+target_link_libraries(minimal_bf16_bug PRIVATE cosma MPI::MPI_CXX)
+add_dependencies(tests minimal_bf16_bug)
+install(TARGETS minimal_bf16_bug DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
+# Debug tool for BF16 buffer sizes during K-split
+add_executable(debug_bf16_buffer_sizes debug_bf16_buffer_sizes.cpp)
+target_link_libraries(debug_bf16_buffer_sizes PRIVATE cosma MPI::MPI_CXX)
+add_dependencies(tests debug_bf16_buffer_sizes)
+install(TARGETS debug_bf16_buffer_sizes DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
 # BFloat16 backend benchmark (MKL vs OpenBLAS)
 add_executable(benchmark.bf16_backends benchmark_bf16_backends.cpp)
 target_link_libraries(benchmark.bf16_backends PRIVATE cosma)
 add_dependencies(tests benchmark.bf16_backends)
 install(TARGETS benchmark.bf16_backends DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
+# BFloat16 distributed multiply test (8 ranks)
+add_cosma_mpi_test(bfloat16_multiply 8 cosma)
 
 if(NOT COSMA_SCALAPACK MATCHES "OFF")
     add_cosma_mpi_test(pdgemm 16 cosma_pxgemm_cpp)

@@ -1,3 +1,4 @@
+#include <cosma/bfloat16.hpp>
 #include <cosma/interval.hpp>
 #include <cosma/math_utils.hpp>
 #include <cosma/matrix.hpp>
@@ -5,7 +6,6 @@
 #include <cosma/profiler.hpp>
 #include <cosma/strategy.hpp>
 #include <cosma/two_sided_communicator.hpp>
-#include <cosma/bfloat16.hpp>
 
 #include <mpi.h>
 
@@ -197,21 +197,22 @@ void reduce(MPI_Comm comm,
     PL();
 
     auto mpi_type = mpi_mapper<Scalar>::getType();
+    auto mpi_sum_op = mpi_mapper<Scalar>::getSumOp();
     PE(multiply_communication_reduce);
 
     if (same_size) {
         MPI_Reduce_scatter_block(send_pointer,
-                           receive_pointer,
-                           recvcnts[0],
-                           mpi_type,
-                           MPI_SUM,
-                           comm);
+                                 receive_pointer,
+                                 recvcnts[0],
+                                 mpi_type,
+                                 mpi_sum_op,
+                                 comm);
     } else {
         MPI_Reduce_scatter(send_pointer,
                            receive_pointer,
                            recvcnts.data(),
                            mpi_type,
-                           MPI_SUM,
+                           mpi_sum_op,
                            comm);
     }
     PL();

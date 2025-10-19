@@ -1,6 +1,6 @@
 #pragma once
-#include <complex>
 #include "bfloat16.hpp"
+#include <complex>
 
 namespace cosma {
 void gemm(const int M,
@@ -53,12 +53,12 @@ void gemm(const int M,
 
 /**
  * @brief Mixed-precision GEMM: BF16 × BF16 → FP32
- * 
+ *
  * Performs C = alpha * A * B + beta * C where:
  * - A, B are in BFloat16 format (16-bit)
  * - C is in FP32 format (32-bit)
  * - Accumulation is done in FP32 for numerical accuracy
- * 
+ *
  * @param M Number of rows in A and C
  * @param N Number of columns in B and C
  * @param K Number of columns in A and rows in B
@@ -70,7 +70,7 @@ void gemm(const int M,
  * @param beta FP32 scalar multiplier for C
  * @param C FP32 output matrix (M×N in column-major order)
  * @param ldc Leading dimension of C (≥M)
- * 
+ *
  * @note If MKL with BF16 support is available, uses cblas_gemm_bf16bf16f32.
  *       Otherwise, falls back to converting BF16→FP32, then using cblas_sgemm.
  */
@@ -88,7 +88,7 @@ void gemm_bf16(const int M,
 
 /**
  * @brief BFloat16 GEMM wrapper (BF16 inputs and outputs)
- * 
+ *
  * This is a convenience wrapper around gemm_bf16 that handles BF16 output.
  * Internally uses FP32 accumulation via gemm_bf16, then converts back to BF16.
  */
