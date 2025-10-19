@@ -2,6 +2,7 @@
 #include <cosma/local_multiply.hpp>
 #include <cosma/profiler.hpp>
 #include <cosma/timer.hpp>
+#include <cosma/bfloat16.hpp>
 
 #ifdef COSMA_HAVE_GPU
 #include <Tiled-MM/tiled_mm.hpp>
@@ -218,6 +219,67 @@ void local_multiply(context<Scalar>& ctx,
     local_multiply(ctx.get(), matrixA, matrixB, matrixC, m, n, k, alpha, beta, copy_c_back);
 }
 
+// ============================================================================
+// BFloat16 Specialization (Mixed Precision: BF16 × BF16 → FP32)
+// ============================================================================
+#if defined(COSMA_WITH_BLAS) || defined(COSMA_WITH_MKL_BLAS)
+
+/**
+ * @brief Specialized local multiply for BFloat16 with FP32 accumulation
+ * 
+ * This specialization handles the mixed-precision case where inputs are BF16
+ * but output and accumulation are in FP32. Note the signature differs from
+ * the template: matrixC is float*, not bfloat16*.
+ */
+template <>
+void local_multiply<bfloat16>(cosma_context<bfloat16> *ctx,
+                              bfloat16 *matrixA,
+                              bfloat16 *matrixB,
+                              bfloat16 *matrixC,  // Actually unused, we write to FP32
+                              int m,
+                              int n,
+                              int k,
+                              bfloat16 alpha,
+                              bfloat16 beta,
+                              bool copy_c_back) {
+    // For BF16, we need to handle mixed precision carefully
+    // The gemm_bf16 function takes BF16 inputs but produces FP32 output
+    // For now, we allocate a temporary FP32 buffer for the output
+    
+    // TODO: This is a workaround. Proper solution requires changing the
+    // CosmaMatrix type system to support mixed-precision outputs.
+    
+    std::vector<float> C_fp32(m * n);
+    
+    // Convert alpha and beta to FP32
+    float alpha_fp32 = static_cast<float>(alpha);
+    float beta_fp32 = static_cast<float>(beta);
+    
+    // If beta != 0, we need to load existing C values (in FP32)
+    if (std::abs(beta_fp32) > 0.0f) {
+        for (int i = 0; i < m * n; ++i) {
+            C_fp32[i] = static_cast<float>(matrixC[i]);
+        }
+    }
+    
+    PE(multiply_computation_gemm);
+    gemm_bf16(m, n, k, alpha_fp32, matrixA, m, matrixB, k, beta_fp32, C_fp32.data(), m);
+    PL();
+    
+    // Convert result back to BF16 (precision loss acceptable)
+    if (copy_c_back) {
+        for (int i = 0; i < m * n; ++i) {
+            matrixC[i] = bfloat16(C_fp32[i]);
+        }
+    }
+}
+
+#endif // COSMA_WITH_BLAS || COSMA_WITH_MKL_BLAS
+
+// ============================================================================
+// Explicit Template Instantiations
+// ============================================================================
+
 // explicit template instantiation using context
 template void local_multiply<double>(cosma_context<double> *ctx,
                                      double *matrixA,
@@ -354,6 +416,18 @@ local_multiply<std::complex<float>>(context<std::complex<float>> &ctx,
                                     std::complex<float> alpha,
                                     std::complex<float> beta,
                                     bool copy_c_back);
+
+// BFloat16 instantiation (with context)
+template void local_multiply<bfloat16>(context<bfloat16> &ctx,
+                                       bfloat16 *matrixA,
+                                       bfloat16 *matrixB,
+                                       bfloat16 *matrixC,
+                                       int m,
+                                       int n,
+                                       int k,
+                                       bfloat16 alpha,
+                                       bfloat16 beta,
+                                       bool copy_c_back);
 
 // explicit instantiation without context
 template void local_multiply<double>(double *matrixA,

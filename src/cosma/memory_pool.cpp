@@ -1,5 +1,6 @@
 #include <cassert>
 #include <complex>
+#include <cosma/bfloat16.hpp>
 #include <cosma/memory_pool.hpp>
 #include <iostream>
 #include <mpi.h>
@@ -217,3 +218,4 @@ template class cosma::memory_pool<double>;
 template class cosma::memory_pool<float>;
 template class cosma::memory_pool<std::complex<double>>;
 template class cosma::memory_pool<std::complex<float>>;
+template class cosma::memory_pool<cosma::bfloat16>;

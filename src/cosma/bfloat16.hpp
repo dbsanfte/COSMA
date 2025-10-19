@@ -55,13 +55,21 @@ public:
     explicit constexpr bfloat16(uint16_t raw) : data_(raw) {}
 
     /**
+     * @brief Construct from int (convenience for literals like 0, 1)
+     * @param value Integer value to convert
+     */
+    bfloat16(int value) : bfloat16(static_cast<float>(value)) {}
+
+    /**
      * @brief Construct from float (FP32)
      * @param value FP32 value to convert
      * 
      * Conversion truncates the lower 16 bits of the FP32 mantissa.
      * This is a simple right-shift operation on the bit representation.
+     * 
+     * Note: Non-explicit to allow implicit conversion from float for convenience
      */
-    explicit bfloat16(float value) {
+    bfloat16(float value) {
         uint32_t fp32_bits;
         std::memcpy(&fp32_bits, &value, sizeof(float));
         
@@ -204,39 +212,39 @@ namespace std {
         static constexpr bool tinyness_before = false;
 
         static constexpr cosma::bfloat16 min() noexcept {
-            return cosma::bfloat16(0x0080); // Smallest normalized positive value
+            return cosma::bfloat16(static_cast<uint16_t>(0x0080)); // Smallest normalized positive value
         }
 
         static constexpr cosma::bfloat16 lowest() noexcept {
-            return cosma::bfloat16(0xFF7F); // Most negative finite value
+            return cosma::bfloat16(static_cast<uint16_t>(0xFF7F)); // Most negative finite value
         }
 
         static constexpr cosma::bfloat16 max() noexcept {
-            return cosma::bfloat16(0x7F7F); // Largest finite value
+            return cosma::bfloat16(static_cast<uint16_t>(0x7F7F)); // Largest finite value
         }
 
         static constexpr cosma::bfloat16 epsilon() noexcept {
-            return cosma::bfloat16(0x3C00); // 2^-7 (smallest x where 1+x != 1)
+            return cosma::bfloat16(static_cast<uint16_t>(0x3C00)); // 2^-7 (smallest x where 1+x != 1)
         }
 
         static constexpr cosma::bfloat16 round_error() noexcept {
-            return cosma::bfloat16(0x3F00); // 0.5 in BF16
+            return cosma::bfloat16(static_cast<uint16_t>(0x3F00)); // 0.5 in BF16
         }
 
         static constexpr cosma::bfloat16 infinity() noexcept {
-            return cosma::bfloat16(0x7F80); // +Infinity
+            return cosma::bfloat16(static_cast<uint16_t>(0x7F80)); // +Infinity
         }
 
         static constexpr cosma::bfloat16 quiet_NaN() noexcept {
-            return cosma::bfloat16(0x7FC0); // Quiet NaN
+            return cosma::bfloat16(static_cast<uint16_t>(0x7FC0)); // Quiet NaN
         }
 
         static constexpr cosma::bfloat16 signaling_NaN() noexcept {
-            return cosma::bfloat16(0x7F80 | 1); // Signaling NaN
+            return cosma::bfloat16(static_cast<uint16_t>(0x7F80 | 1)); // Signaling NaN
         }
 
         static constexpr cosma::bfloat16 denorm_min() noexcept {
-            return cosma::bfloat16(0x0001); // Smallest denormalized positive value
+            return cosma::bfloat16(static_cast<uint16_t>(0x0001)); // Smallest denormalized positive value
         }
     };
 } // namespace std

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "context.hpp"
+#include <cosma/bfloat16.hpp>
 #include <cosma/communicator.hpp>
 #include <cosma/environment_variables.hpp>
 #include <cosma/profiler.hpp>
@@ -163,12 +164,14 @@ template class cosma_context<float>;
 template class cosma_context<double>;
 template class cosma_context<zfloat>;
 template class cosma_context<zdouble>;
+template class cosma_context<bfloat16>;
 
 // template instantiation for make_context
 template context<float> make_context();
 template context<double> make_context();
 template context<zfloat> make_context();
 template context<zdouble> make_context();
+template context<bfloat16> make_context();
 
 template context<float> make_context(size_t cpu_mem_limit,
                                             int streams,
@@ -190,10 +193,16 @@ template context<zdouble> make_context(size_t cpu_mem_limit,
                                               int tile_m,
                                               int tile_n,
                                               int tile_k);
+template context<bfloat16> make_context(size_t cpu_mem_limit,
+                                               int streams,
+                                               int tile_m,
+                                               int tile_n,
+                                               int tile_k);
 
 // template instantiation for get_context_instance
 template global_context<float> get_context_instance();
 template global_context<double> get_context_instance();
 template global_context<zfloat> get_context_instance();
 template global_context<zdouble> get_context_instance();
+template global_context<bfloat16> get_context_instance();
 }
