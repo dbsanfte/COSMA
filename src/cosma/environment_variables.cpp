@@ -1,4 +1,5 @@
 #include <cosma/environment_variables.hpp>
+#include <cosma/bfloat16.hpp>
 #include <algorithm>
 
 bool cosma::env_var_defined(const char* var_name) {
@@ -135,4 +136,5 @@ template long long cosma::get_cpu_max_memory<float>();
 template long long cosma::get_cpu_max_memory<double>();
 template long long cosma::get_cpu_max_memory<std::complex<float>>();
 template long long cosma::get_cpu_max_memory<std::complex<double>>();
+template long long cosma::get_cpu_max_memory<cosma::bfloat16>();
 

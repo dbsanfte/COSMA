@@ -4,6 +4,7 @@
 #include <cosma/math_utils.hpp>
 #include <cosma/mpi_mapper.hpp>
 #include <cosma/profiler.hpp>
+#include <cosma/bfloat16.hpp>
 
 #include <algorithm>
 #include <atomic>
@@ -1142,6 +1143,21 @@ template void overlap_comm_and_comp<std::complex<double>>(
     size_t step,
     std::complex<double> alpha,
     std::complex<double> beta);
+
+template void overlap_comm_and_comp<bfloat16>(cosma_context<bfloat16> *ctx,
+                                              MPI_Comm comm,
+                                              int rank,
+                                              const Strategy strategy,
+                                              CosmaMatrix<bfloat16> &matrixA,
+                                              CosmaMatrix<bfloat16> &matrixB,
+                                              CosmaMatrix<bfloat16> &matrixC,
+                                              Interval &m,
+                                              Interval &n,
+                                              Interval &k,
+                                              Interval &P,
+                                              size_t step,
+                                              bfloat16 alpha,
+                                              bfloat16 beta);
 
 } // end namespace one_sided_communicator
 

@@ -2,6 +2,7 @@
 
 #include <complex>
 #include <mpi.h>
+#include <cosma/bfloat16.hpp>
 
 namespace cosma {
 
@@ -33,6 +34,11 @@ inline MPI_Datatype mpi_mapper<std::complex<float>>::getType() {
 template <>
 inline MPI_Datatype mpi_mapper<std::complex<double>>::getType() {
   return MPI_C_DOUBLE_COMPLEX;
+}
+
+template <>
+inline MPI_Datatype mpi_mapper<bfloat16>::getType() {
+  return MPI_UINT16_T;
 }
 
 // Removes const qualifier

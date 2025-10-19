@@ -2,6 +2,7 @@
 #include <cosma/local_multiply.hpp>
 #include <cosma/multiply.hpp>
 #include <cosma/profiler.hpp>
+#include <cosma/bfloat16.hpp>
 #include <costa/grid2grid/ranks_reordering.hpp>
 #include <costa/grid2grid/transformer.hpp>
 
@@ -1002,6 +1003,15 @@ multiply_using_layout<zfloat_t>(costa::grid_layout<zfloat_t> &A,
                                 char transb,
                                 MPI_Comm comm);
 
+template void multiply_using_layout<bfloat16>(costa::grid_layout<bfloat16> &A,
+                                              costa::grid_layout<bfloat16> &B,
+                                              costa::grid_layout<bfloat16> &C,
+                                              bfloat16 alpha,
+                                              bfloat16 beta,
+                                              char transa,
+                                              char transb,
+                                              MPI_Comm comm);
+
 // explicit instantiation for multiply_using_layout with context
 template void multiply_using_layout<double>(cosma_context<double> *ctx,
                                             costa::grid_layout<double> &A,
@@ -1045,6 +1055,16 @@ multiply_using_layout<zfloat_t>(cosma_context<zfloat_t> *ctx,
                                 char transb,
                                 MPI_Comm comm);
 
+template void multiply_using_layout<bfloat16>(cosma_context<bfloat16> *ctx,
+                                              costa::grid_layout<bfloat16> &A,
+                                              costa::grid_layout<bfloat16> &B,
+                                              costa::grid_layout<bfloat16> &C,
+                                              bfloat16 alpha,
+                                              bfloat16 beta,
+                                              char transa,
+                                              char transb,
+                                              MPI_Comm comm);
+
 // Explicit instantiations for short `multiply`
 template void multiply<double>(cosma_context<double> *ctx,
                                CosmaMatrix<double> &A,
@@ -1082,6 +1102,15 @@ template void multiply<zfloat_t>(cosma_context<zfloat_t> *ctx,
                                  zfloat_t alpha,
                                  zfloat_t beta);
 
+template void multiply<bfloat16>(cosma_context<bfloat16> *ctx,
+                                 CosmaMatrix<bfloat16> &A,
+                                 CosmaMatrix<bfloat16> &B,
+                                 CosmaMatrix<bfloat16> &C,
+                                 const Strategy &strategy,
+                                 MPI_Comm comm,
+                                 bfloat16 alpha,
+                                 bfloat16 beta);
+
 // Explicit instantiations for short `multiply` without the context
 //
 template void multiply<double>(CosmaMatrix<double> &A,
@@ -1115,4 +1144,13 @@ template void multiply<zfloat_t>(CosmaMatrix<zfloat_t> &A,
                                  MPI_Comm comm,
                                  zfloat_t alpha,
                                  zfloat_t beta);
+
+template void multiply<bfloat16>(CosmaMatrix<bfloat16> &A,
+                                 CosmaMatrix<bfloat16> &B,
+                                 CosmaMatrix<bfloat16> &C,
+                                 const Strategy &strategy,
+                                 MPI_Comm comm,
+                                 bfloat16 alpha,
+                                 bfloat16 beta);
+
 } // namespace cosma

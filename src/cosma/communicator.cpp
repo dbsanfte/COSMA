@@ -3,6 +3,7 @@
 #include <cosma/communicator.hpp>
 #include <cosma/one_sided_communicator.hpp>
 #include <cosma/two_sided_communicator.hpp>
+#include <cosma/bfloat16.hpp>
 
 #if defined(COSMA_HAVE_GPU) && defined(COSMA_WITH_NCCL)
 #include <cosma/gpu/nccl_utils.hpp>
@@ -487,6 +488,16 @@ template void communicator::copy<std::complex<double>>(
     int total_after,
     int step);
 
+template void communicator::copy<bfloat16>(
+    Interval &P,
+    bfloat16 *in,
+    bfloat16 *out,
+    bfloat16 *reshuffle_buffer,
+    std::vector<std::vector<int>> &size_before,
+    std::vector<int> &total_before,
+    int total_after,
+    int step);
+
 // Explicit instantiations for `reduce`
 //
 template void
@@ -545,6 +556,20 @@ template void communicator::reduce<std::complex<double>>(
     std::complex<double> beta,
     int step);
 
+template void communicator::reduce<bfloat16>(
+    Interval &P,
+    bfloat16 *in,
+    bfloat16 *out,
+    bfloat16 *reshuffle_buffer,
+    bfloat16 *reduce_buffer,
+    std::vector<std::vector<int>> &c_current,
+    std::vector<int> &c_total_current,
+    std::vector<std::vector<int>> &c_expanded,
+    std::vector<int> &c_total_expanded,
+    bfloat16 alpha,
+    bfloat16 beta,
+    int step);
+
 // Explicit instantiations for `overlap_comm_and_comp`
 //
 template void
@@ -597,5 +622,18 @@ template void communicator::overlap_comm_and_comp<std::complex<double>>(
     size_t step,
     std::complex<double> alpha,
     std::complex<double> beta);
+
+template void communicator::overlap_comm_and_comp<bfloat16>(
+    cosma_context<bfloat16> *ctx,
+    CosmaMatrix<bfloat16> &matrixA,
+    CosmaMatrix<bfloat16> &matrixB,
+    CosmaMatrix<bfloat16> &matrixC,
+    Interval &m,
+    Interval &n,
+    Interval &k,
+    Interval &P,
+    size_t step,
+    bfloat16 alpha,
+    bfloat16 beta);
 
 } // namespace cosma

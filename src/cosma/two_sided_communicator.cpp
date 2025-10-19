@@ -5,6 +5,7 @@
 #include <cosma/profiler.hpp>
 #include <cosma/strategy.hpp>
 #include <cosma/two_sided_communicator.hpp>
+#include <cosma/bfloat16.hpp>
 
 #include <mpi.h>
 
@@ -271,6 +272,17 @@ copy<std::complex<double>>(MPI_Comm comm,
                            std::vector<int> &total_before,
                            int total_after);
 
+template void copy<bfloat16>(MPI_Comm comm,
+                             int rank,
+                             int div,
+                             Interval &P,
+                             bfloat16 *in,
+                             bfloat16 *out,
+                             bfloat16 *reshuffle_buffer,
+                             std::vector<std::vector<int>> &size_before,
+                             std::vector<int> &total_before,
+                             int total_after);
+
 template void reduce<float>(MPI_Comm comm,
                             int rank,
                             int div,
@@ -328,6 +340,20 @@ reduce<std::complex<double>>(MPI_Comm comm,
                              std::vector<std::vector<int>> &c_expanded,
                              std::vector<int> &c_total_expanded,
                              std::complex<double> beta);
+
+template void reduce<bfloat16>(MPI_Comm comm,
+                               int rank,
+                               int div,
+                               Interval &P,
+                               bfloat16 *LC,
+                               bfloat16 *C,
+                               bfloat16 *reshuffle_buffer,
+                               bfloat16 *reduce_buffer,
+                               std::vector<std::vector<int>> &c_current,
+                               std::vector<int> &c_total_current,
+                               std::vector<std::vector<int>> &c_expanded,
+                               std::vector<int> &c_total_expanded,
+                               bfloat16 beta);
 
 } // end namespace two_sided_communicator
 

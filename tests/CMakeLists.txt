@@ -36,6 +36,16 @@ add_test(NAME test.bfloat16_basic COMMAND test.bfloat16_basic)
 add_dependencies(tests test.bfloat16_basic)
 install(TARGETS test.bfloat16_basic DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
+# BFloat16 MPI test (2 ranks)
+add_executable(test.bfloat16_mpi test_bfloat16_mpi.cpp)
+target_link_libraries(test.bfloat16_mpi PRIVATE cosma MPI::MPI_CXX)
+add_test(NAME test.bfloat16_mpi
+         WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
+         COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2
+                 ${MPIEXEC_PREFLAGS} ./test.bfloat16_mpi ${MPIEXEC_POSTFLAGS})
+add_dependencies(tests test.bfloat16_mpi)
+install(TARGETS test.bfloat16_mpi DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
 if(NOT COSMA_SCALAPACK MATCHES "OFF")
     add_cosma_mpi_test(pdgemm 16 cosma_pxgemm_cpp)
 endif()
