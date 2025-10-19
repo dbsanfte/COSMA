@@ -134,6 +134,10 @@ if (COSMA_GPU_BACKEND MATCHES "CUDA|ROCM")
       message("Tiled-mm target not found")
   endif ()
 
+  # Check if GPU backend supports BFloat16
+  include(check_gpu_bf16_support)
+  check_gpu_bf16_support()
+
 endif()
 
 if (COSMA_WITH_PROFILING)
