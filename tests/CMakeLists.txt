@@ -29,6 +29,13 @@ add_test(NAME test.mapper COMMAND test.mapper)
 add_dependencies(tests test.mapper)
 install(TARGETS test.mapper DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
+# BFloat16 basic test (non-MPI)
+add_executable(test.bfloat16_basic test_bfloat16_basic.cpp)
+target_link_libraries(test.bfloat16_basic PRIVATE cosma)
+add_test(NAME test.bfloat16_basic COMMAND test.bfloat16_basic)
+add_dependencies(tests test.bfloat16_basic)
+install(TARGETS test.bfloat16_basic DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
 if(NOT COSMA_SCALAPACK MATCHES "OFF")
     add_cosma_mpi_test(pdgemm 16 cosma_pxgemm_cpp)
 endif()

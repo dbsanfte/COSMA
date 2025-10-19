@@ -1,5 +1,7 @@
 #include <cosma/blas.hpp>
 
+#include <vector>
+
 // extern "C" {
 #ifdef COSMA_WITH_MKL_BLAS
 #include <mkl.h>
@@ -126,6 +128,58 @@ void gemm(const int M,
                 ldb,
                 reinterpret_cast<const float*>(&beta),
                 reinterpret_cast<float*>(C),
+                ldc);
+}
+
+void gemm_bf16(const int M,
+               const int N,
+               const int K,
+               const float alpha,
+               const bfloat16 *A,
+               const int lda,
+               const bfloat16 *B,
+               const int ldb,
+               const float beta,
+               float *C,
+               const int ldc) {
+#ifdef COSMA_WITH_MKL_BLAS
+    // MKL 2020+ has native BF16 × BF16 → FP32 GEMM
+    // Function signature: cblas_gemm_bf16bf16f32
+    // NOTE: This requires Intel MKL 2020 or later
+    // For now, we implement the fallback path
+    // TODO: Add MKL BF16 support when CMake detection is ready
+#endif
+
+    // Fallback: Convert BF16 → FP32, compute with FP32 GEMM
+    // This is slower but works with any BLAS library
+    
+    // Allocate temporary FP32 buffers for A and B
+    std::vector<float> A_fp32(M * K);
+    std::vector<float> B_fp32(K * N);
+    
+    // Convert BF16 → FP32
+    for (int i = 0; i < M * K; ++i) {
+        A_fp32[i] = static_cast<float>(A[i]);
+    }
+    
+    for (int i = 0; i < K * N; ++i) {
+        B_fp32[i] = static_cast<float>(B[i]);
+    }
+    
+    // Call standard FP32 GEMM
+    cblas_sgemm(CBLAS_LAYOUT::CblasColMajor,
+                CBLAS_TRANSPOSE::CblasNoTrans,
+                CBLAS_TRANSPOSE::CblasNoTrans,
+                M,
+                N,
+                K,
+                alpha,
+                A_fp32.data(),
+                lda,
+                B_fp32.data(),
+                ldb,
+                beta,
+                C,
                 ldc);
 }
 
