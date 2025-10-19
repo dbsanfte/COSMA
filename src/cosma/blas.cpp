@@ -156,6 +156,28 @@ void gemm_bf16(const int M,
                            beta,
                            C,
                            ldc);
+#elif defined(COSMA_OPENBLAS_HAS_BF16_NATIVE)
+    // OpenBLAS 0.3.27+ has native BF16 GEMM (cblas_sbgemm)
+    // Uses AVX512_BF16 instructions when available
+    // Note: OpenBLAS uses 'sbgemm' naming (single-precision BFloat16)
+    // and outputs to FP32, matching the MKL behavior
+    
+    // OpenBLAS BF16 format: need to reinterpret bfloat16 as uint16_t storage
+    // The actual cblas_sbgemm signature expects bfloat16 storage
+    cblas_sbgemm(CblasColMajor,
+                 CblasNoTrans,
+                 CblasNoTrans,
+                 M,
+                 N,
+                 K,
+                 alpha,
+                 reinterpret_cast<const bfloat16 *>(A),
+                 lda,
+                 reinterpret_cast<const bfloat16 *>(B),
+                 ldb,
+                 beta,
+                 C,
+                 ldc);
 #else
     // Fallback: Convert BF16 → FP32, compute with FP32 GEMM
     // This is slower but works with any BLAS library

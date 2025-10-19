@@ -152,6 +152,41 @@ if (COSMA_GPU_BACKEND MATCHES "CUDA|ROCM")
 
 endif()
 
+# CPU BFloat16 Support Detection (for OpenBLAS native BF16)
+# This detects if the CPU has AVX512_BF16 instructions and if OpenBLAS
+# supports native BF16 GEMM operations (cblas_sbgemm)
+if(COSMA_BLAS_VENDOR MATCHES "OPENBLAS")
+  message(STATUS "Configuring OpenBLAS with BF16 support detection...")
+  
+  # Check CPU capabilities for BF16
+  include(check_cpu_bf16_support)
+  check_cpu_bf16_support()
+  
+  # Fetch/build OpenBLAS from source with BF16 support
+  include(fetch_openblas_bf16)
+  
+  # Configure COSMA with OpenBLAS BF16 capabilities
+  if(COSMA_CPU_HAS_BF16 AND OPENBLAS_HAS_BF16_SUPPORT)
+    set(COSMA_OPENBLAS_HAS_BF16_NATIVE ON CACHE BOOL "OpenBLAS has native BF16 GEMM support")
+    target_compile_definitions(cosma PRIVATE COSMA_OPENBLAS_HAS_BF16_NATIVE)
+    
+    # Add CPU BF16 compiler flags if needed
+    if(COSMA_CPU_BF16_FLAGS)
+      target_compile_options(cosma PRIVATE ${COSMA_CPU_BF16_FLAGS})
+    endif()
+    
+    message(STATUS "OpenBLAS native BF16 GEMM: ENABLED (CPU has AVX512_BF16)")
+  else()
+    set(COSMA_OPENBLAS_HAS_BF16_NATIVE OFF CACHE BOOL "OpenBLAS native BF16 support")
+    
+    if(NOT COSMA_CPU_HAS_BF16)
+      message(STATUS "OpenBLAS native BF16 GEMM: DISABLED (CPU lacks AVX512_BF16)")
+    elseif(NOT OPENBLAS_HAS_BF16_SUPPORT)
+      message(STATUS "OpenBLAS native BF16 GEMM: DISABLED (OpenBLAS version too old)")
+    endif()
+  endif()
+endif()
+
 if (COSMA_WITH_PROFILING)
   FetchContent_Declare(
     semiprof
