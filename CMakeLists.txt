@@ -142,9 +142,11 @@ if (COSMA_GPU_BACKEND MATCHES "CUDA|ROCM")
   
   # Pass BF16 support flag to Tiled-MM
   if(COSMA_GPU_HAS_BF16_SUPPORT)
+    set(TILED_MM_HAS_BF16_SUPPORT ON CACHE INTERNAL "Enable BF16 support in Tiled-MM")
     target_compile_definitions(Tiled-MM::Tiled-MM INTERFACE TILED_MM_HAS_BF16_SUPPORT)
     message(STATUS "Tiled-MM BF16 support: ENABLED")
   else()
+    set(TILED_MM_HAS_BF16_SUPPORT OFF CACHE INTERNAL "Enable BF16 support in Tiled-MM")
     message(STATUS "Tiled-MM BF16 support: DISABLED")
   endif()
 
