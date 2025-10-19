@@ -1,4 +1,5 @@
 #include <complex>
+#include <cosma/bfloat16.hpp>
 #include <cosma/buffer.hpp>
 #include <cosma/context.hpp>
 #include <cosma/profiler.hpp>
@@ -828,5 +829,6 @@ template class Buffer<double>;
 template class Buffer<std::complex<double>>;
 template class Buffer<float>;
 template class Buffer<std::complex<float>>;
+template class Buffer<bfloat16>;
 
 } // namespace cosma
