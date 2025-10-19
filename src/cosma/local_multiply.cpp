@@ -582,6 +582,21 @@ template void local_multiply<float>(gpu::mm_handle<float> *ctx,
                                     bool pin_host_buffers,
                                     bool copy_c_back);
 
+#ifdef COSMA_GPU_HAS_BF16_SUPPORT
+// explicit template instantiation for bfloat16 using gpu context
+template void local_multiply<bfloat16>(gpu::mm_handle<bfloat16> *ctx,
+                                       bfloat16 *matrixA,
+                                       bfloat16 *matrixB,
+                                       bfloat16 *matrixC,
+                                       int m,
+                                       int n,
+                                       int k,
+                                       bfloat16 alpha,
+                                       bfloat16 beta,
+                                       bool pin_host_buffers,
+                                       bool copy_c_back);
+#endif
+
 template void
 local_multiply<std::complex<double>>(gpu::mm_handle<std::complex<double>> *ctx,
                                      std::complex<double> *matrixA,
