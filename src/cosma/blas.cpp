@@ -5,13 +5,9 @@
 // extern "C" {
 #ifdef COSMA_WITH_MKL_BLAS
 #include <mkl.h>
-#endif
-
-#ifdef COSMA_WITH_BLIS_BLAS
+#elif defined(COSMA_WITH_BLIS_BLAS)
 #include <blis.h>
-#endif
-
-#ifdef COSMA_WITH_BLAS
+#elif defined(COSMA_WITH_BLAS)
 #include <cblas.h>
 // this is for backward compatibility,
 // in case CBLAS_LAYOUT is not defined
@@ -144,12 +140,23 @@ void gemm_bf16(const int M,
                const int ldc) {
 #ifdef COSMA_WITH_MKL_BLAS
     // MKL 2020+ has native BF16 × BF16 → FP32 GEMM
-    // Function signature: cblas_gemm_bf16bf16f32
-    // NOTE: This requires Intel MKL 2020 or later
-    // For now, we implement the fallback path
-    // TODO: Add MKL BF16 support when CMake detection is ready
-#endif
-
+    // Uses hardware-accelerated BF16 dot products on AVX-512 BF16 CPUs
+    cblas_gemm_bf16bf16f32(
+        CblasColMajor,
+        CblasNoTrans,
+        CblasNoTrans,
+        M,
+        N,
+        K,
+        alpha,
+        reinterpret_cast<const MKL_BF16*>(A),
+        lda,
+        reinterpret_cast<const MKL_BF16*>(B),
+        ldb,
+        beta,
+        C,
+        ldc);
+#else
     // Fallback: Convert BF16 → FP32, compute with FP32 GEMM
     // This is slower but works with any BLAS library
     
@@ -181,6 +188,7 @@ void gemm_bf16(const int M,
                 beta,
                 C,
                 ldc);
+#endif
 }
 
 } // namespace cosma

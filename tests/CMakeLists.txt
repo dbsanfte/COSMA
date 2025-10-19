@@ -46,6 +46,12 @@ add_test(NAME test.bfloat16_mpi
 add_dependencies(tests test.bfloat16_mpi)
 install(TARGETS test.bfloat16_mpi DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
+# BFloat16 backend benchmark (MKL vs OpenBLAS)
+add_executable(benchmark.bf16_backends benchmark_bf16_backends.cpp)
+target_link_libraries(benchmark.bf16_backends PRIVATE cosma)
+add_dependencies(tests benchmark.bf16_backends)
+install(TARGETS benchmark.bf16_backends DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
 if(NOT COSMA_SCALAPACK MATCHES "OFF")
     add_cosma_mpi_test(pdgemm 16 cosma_pxgemm_cpp)
 endif()
