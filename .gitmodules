@@ -1,6 +1,7 @@
 [submodule "libs/Tiled-MM"]
 	path = libs/Tiled-MM
-	url = https://github.com/eth-cscs/Tiled-MM.git
+	url = https://github.com/dbsanfte/Tiled-MM.git
+	branch = feature/bf16-support
 [submodule "libs/COSTA"]
 	path = libs/COSTA
 	url = https://github.com/dbsanfte/COSTA

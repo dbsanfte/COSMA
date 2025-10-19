@@ -114,10 +114,12 @@ FetchContent_MakeAvailable(costa)
 # these are only GPU-backends
 if (COSMA_GPU_BACKEND MATCHES "CUDA|ROCM")
   set(TILEDMM_GPU_BACKEND ${COSMA_GPU_BACKEND} CACHE INTERNAL "")
+  
+  # Use fork with BF16 support
   FetchContent_Declare(
     Tiled-MM
-    GIT_REPOSITORY https://github.com/eth-cscs/Tiled-MM.git
-    GIT_TAG      0eb75179e670a04c649b50ae5e91bb71b43e4d06 # v2.3.2
+    GIT_REPOSITORY https://github.com/dbsanfte/Tiled-MM.git
+    GIT_TAG      feature/bf16-support  # BF16 support branch
     FIND_PACKAGE_ARGS NAMES tiled-MM
   )
   FetchContent_MakeAvailable(Tiled-MM)
@@ -137,6 +139,14 @@ if (COSMA_GPU_BACKEND MATCHES "CUDA|ROCM")
   # Check if GPU backend supports BFloat16
   include(check_gpu_bf16_support)
   check_gpu_bf16_support()
+  
+  # Pass BF16 support flag to Tiled-MM
+  if(COSMA_GPU_HAS_BF16_SUPPORT)
+    target_compile_definitions(Tiled-MM::Tiled-MM INTERFACE TILED_MM_HAS_BF16_SUPPORT)
+    message(STATUS "Tiled-MM BF16 support: ENABLED")
+  else()
+    message(STATUS "Tiled-MM BF16 support: DISABLED")
+  endif()
 
 endif()
 
