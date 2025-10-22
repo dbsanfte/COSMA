@@ -22,6 +22,7 @@ set(COSMA_BLAS_VENDOR_LIST
   "BLIS"
   "ATLAS"
   "NVPL"
+  "CUSTOM"
   "OFF")
 
 # COSMA_BLAS_VENDOR should normally be defined here but cosma defines it in the
@@ -72,16 +73,23 @@ set(COSMA_BLAS_FOUND FALSE)
 # first check for a specific implementation if requested
 
 if(NOT COSMA_BLAS_VENDOR MATCHES "auto")
-   if (COSMA_BLAS_VENDOR MATCHES "CUSTOM")
-       find_package(GenericBLAS REQUIRED)
-   else()
-       find_package(${COSMA_BLAS_VENDOR} REQUIRED)
-  endif()
+   # If COSMA_BLAS_LINK_LIBRARIES is already provided, skip find_package
+   # This allows parent projects to provide custom BLAS libraries directly
+   if(NOT COSMA_BLAS_LINK_LIBRARIES)
+       if (COSMA_BLAS_VENDOR MATCHES "CUSTOM")
+           find_package(GenericBLAS REQUIRED)
+       else()
+           find_package(${COSMA_BLAS_VENDOR} REQUIRED)
+       endif()
+   endif()
   if(TARGET cosma::BLAS::${COSMA_BLAS_VENDOR}::blas)
     get_target_property(COSMA_BLAS_INCLUDE_DIRS cosma::BLAS::${COSMA_BLAS_VENDOR}::blas
                         INTERFACE_INCLUDE_DIRECTORIES)
     get_target_property(COSMA_BLAS_LINK_LIBRARIES cosma::BLAS::${COSMA_BLAS_VENDOR}::blas
                         INTERFACE_LINK_LIBRARIES)
+    set(COSMA_BLAS_FOUND TRUE)
+  elseif(COSMA_BLAS_LINK_LIBRARIES)
+    # Libraries provided directly, mark as found
     set(COSMA_BLAS_FOUND TRUE)
   endif()
 else()
